@@ -1,0 +1,118 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RouteHarbor Logistics</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,sans-serif;background:#f4f7fb;color:#17243a}
+header{background:#10243e;color:white;padding:22px 7%;display:flex;justify-content:space-between;align-items:center}
+.logo{font-size:22px;font-weight:bold}
+.logo span{color:#42c7a5}
+nav a{color:white;text-decoration:none;margin-left:18px;font-size:14px}
+.hero{background:linear-gradient(120deg,#10243e,#176b78);color:white;padding:75px 8%;text-align:center}
+.hero h1{font-size:38px;margin:0 0 15px}
+.hero p{color:#dce9ed;font-size:16px}
+.tracking{background:white;max-width:650px;margin:-35px auto 45px;padding:28px;border-radius:12px;box-shadow:0 8px 30px #10243e18}
+.tracking h2{margin-top:0}
+input{width:100%;padding:15px;border:1px solid #ccd5df;border-radius:7px;font-size:16px;margin:12px 0}
+button{background:#12a889;color:white;border:0;padding:15px 22px;border-radius:7px;font-weight:bold;font-size:15px;width:100%;cursor:pointer}
+#result{margin-top:20px;line-height:1.8}
+.info{padding:25px 8%;text-align:center}
+.info h2{color:#10243e}
+footer{background:#10243e;color:#dce9ed;text-align:center;padding:25px;font-size:13px}
+@media(max-width:600px){header{padding:18px 5%}nav a{margin-left:8px}.hero h1{font-size:29px}.tracking{margin-left:5%;margin-right:5%}}
+</style>
+</head>
+<body>
+
+<header>
+<div class="logo">ROUTE<span>HARBOR</span></div>
+<nav><a href="#track">Track Shipment</a></nav>
+</header>
+
+<section class="hero">
+<h1>Moving Goods. Connecting Destinations.</h1>
+<p>Reliable logistics and shipment tracking, all in one place.</p>
+</section>
+
+<section class="tracking" id="track">
+<h2>Track Your Shipment</h2>
+<p>Enter your tracking number to check your shipment status.</p>
+<input id="trackingNumber" placeholder="Enter tracking number">
+<button onclick="trackShipment()">Track Shipment</button>
+<div id="result"></div>
+</section>
+
+<section class="info">
+<h2>Logistics You Can Trust</h2>
+<p>Track shipment progress and stay informed about your delivery.</p>
+</section>
+
+<footer>
+<p>© 2026 RouteHarbor Logistics. All rights reserved.</p>
+<p>Moving Goods. Connecting Destinations.</p>
+</footer>
+
+<script>
+async function trackShipment(){
+const number=document.getElementById("trackingNumber").value.trim();
+const result=document.getElementById("result");
+
+if(!number){
+result.textContent="Please enter your tracking number.";
+return;
+}
+
+result.textContent="Checking shipment...";
+
+const SUPABASE_URL="YOUR_SUPABASE_PROJECT_URL";
+const SUPABASE_ANON_KEY="YOUR_SUPABASE_PUBLISHABLE_KEY";
+
+if(SUPABASE_URL.startsWith("YOUR_") || SUPABASE_ANON_KEY.startsWith("YOUR_")){
+result.textContent="Tracking service setup is not finished yet. Please check back soon.";
+return;
+}
+
+try{
+const response=await fetch(SUPABASE_URL+"/rest/v1/rpc/track_shipment",{
+method:"POST",
+headers:{
+"Content-Type":"application/json",
+"apikey":SUPABASE_ANON_KEY,
+"Authorization":"Bearer "+SUPABASE_ANON_KEY
+},
+body:JSON.stringify({p_tracking_number:number})
+});
+
+if(!response.ok) throw new Error("Tracking service unavailable");
+
+const data=await response.json();
+
+if(!data.length){
+result.textContent="No shipment found. Please check your tracking number.";
+return;
+}
+
+const shipment=data[0];
+result.innerHTML=
+"<strong>Status:</strong> "+escapeHTML(shipment.status)+
+"<br><strong>Destination:</strong> "+escapeHTML(shipment.destination)+
+"<br><strong>Current location:</strong> "+escapeHTML(shipment.current_location)+
+"<br><strong>Estimated delivery:</strong> "+escapeHTML(shipment.estimated_delivery || "Not available");
+}catch(error){
+result.textContent="Unable to check shipment. Please try again later.";
+}
+}
+
+function escapeHTML(value){
+return String(value ?? "").replace(/[&<>"']/g,function(c){
+return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];
+});
+}
+</script>
+</body>
+  </html>
+  
