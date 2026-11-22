@@ -3,100 +3,88 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>RouteHarbor Admin</title>
+<title>RouteHarbor Admin Dashboard</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 *{box-sizing:border-box}
-body{margin:0;background:#f1f5f9;color:#17243a;font-family:Arial,sans-serif}
-header{background:#10243e;color:white;padding:22px 6%;display:flex;justify-content:space-between;align-items:center}
-header h2{margin:0}
-header span{color:#42c7a5}
-main{max-width:1000px;margin:35px auto;padding:0 16px}
-.card{background:white;padding:22px;border-radius:12px;margin-bottom:22px;box-shadow:0 3px 15px #0000000c}
-h2,h3{margin-top:0}
-input,select{width:100%;padding:13px;margin:8px 0 15px;border:1px solid #cbd5e1;border-radius:6px;font-size:15px}
-button{padding:13px 18px;border:0;border-radius:6px;background:#0d9b80;color:white;font-weight:bold;cursor:pointer}
-button.secondary{background:#10243e}
-button.danger{background:#a83232}
-button:disabled{opacity:.5}
-.row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.hidden{display:none}
-.message{padding:12px;background:#eaf5f2;border-radius:6px;margin-top:12px;white-space:pre-wrap}
-table{width:100%;border-collapse:collapse;min-width:650px}
-th,td{text-align:left;padding:12px;border-bottom:1px solid #e2e8f0;font-size:13px}
+body{margin:0;padding:20px;font-family:Arial,sans-serif;background:#f1f5f9;color:#172033}
+header{background:#102b46;color:white;padding:22px;border-radius:12px;margin-bottom:20px}
+h1{margin:0 0 6px}
+.panel{background:white;padding:20px;border-radius:12px;margin-bottom:20px;box-shadow:0 2px 8px #0000000d}
+input,select,button{width:100%;padding:12px;margin:7px 0;border:1px solid #cbd5e1;border-radius:7px;font-size:15px}
+button{background:#087e8b;color:white;border:0;cursor:pointer;font-weight:bold}
+.logout{background:#a83232;max-width:130px}
+#dashboard{display:none}
 .table-wrap{overflow-x:auto}
-small{color:#64748b}
-@media(max-width:600px){.row{grid-template-columns:1fr}main{margin:20px auto}}
+table{width:100%;border-collapse:collapse;min-width:650px}
+th,td{padding:12px;text-align:left;border-bottom:1px solid #e2e8f0}
+th{background:#edf3f7}
+.message{margin-top:10px;font-size:14px}
+.success{color:#087443}
+.error{color:#b42318}
+@media(min-width:700px){.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}}
 </style>
 </head>
 <body>
 
 <header>
-<h2>ROUTE<span>HARBOR</span> ADMIN</h2>
-<button id="logout" class="secondary hidden">Log out</button>
+<h1>ROUTEHARBOR ADMIN</h1>
+<p>Moving Goods. Connecting Destinations.</p>
 </header>
 
-<main>
-
-<section class="card" id="loginPanel">
-<h2>Administrator Login</h2>
-<p>Sign in with your authorized RouteHarbor administrator account.</p>
-<label>Email address</label>
-<input id="email" type="email" placeholder="Administrator email">
-<label>Password</label>
-<input id="password" type="password" placeholder="Your Supabase password">
-<button id="login">Sign in</button>
-<div id="loginMessage" class="message hidden"></div>
+<section class="panel" id="loginPanel">
+<h2>Admin Login</h2>
+<input id="email" type="email" placeholder="Admin email">
+<input id="password" type="password" placeholder="Password">
+<button onclick="login()">Sign In</button>
+<p id="loginMessage" class="message"></p>
 </section>
 
-<section id="dashboard" class="hidden">
+<main id="dashboard">
+<section class="panel">
+<h2>Dashboard</h2>
+<p>Manage shipments and update delivery information.</p>
+<button class="logout" onclick="logout()">Log Out</button>
+</section>
 
-<div class="card">
-<h2>Shipment Management</h2>
-<p>Welcome to your RouteHarbor control panel.</p>
-<button id="refresh" class="secondary">Refresh shipments</button>
-</div>
-
-<div class="card">
-<h3>Add New Shipment</h3>
-
-<label>Customer name</label>
-<input id="customer" placeholder="Customer full name">
-
-<div class="row">
-<div>
-<label>Destination</label>
-<input id="destination" placeholder="e.g. Douala">
-</div>
-<div>
-<label>Current location</label>
-<input id="location" placeholder="e.g. Yaoundé">
-</div>
-</div>
-
-<div class="row">
-<div>
-<label>Shipment status</label>
+<section class="panel">
+<h2>Create New Shipment</h2>
+<div class="form-grid">
+<input id="customer" placeholder="Customer name">
+<input id="destination" placeholder="Destination">
+<input id="location" placeholder="Current location">
 <select id="status">
 <option>Pending</option>
-<option>Processing</option>
+<option>Picked Up</option>
 <option>In Transit</option>
 <option>Out for Delivery</option>
 <option>Delivered</option>
 </select>
+<input id="deliveryDate" type="date">
 </div>
-<div>
-<label>Estimated delivery</label>
-<input id="delivery" type="date">
-</div>
-</div>
+<button onclick="createShipment()">Create Shipment</button>
+<p id="createMessage" class="message"></p>
+</section>
 
-<button id="addShipment">Create shipment</button>
-<div id="addMessage" class="message hidden"></div>
-</div>
+<section class="panel">
+<h2>Update Shipment</h2>
+<input id="updateTracking" placeholder="Tracking number">
+<input id="updateLocation" placeholder="New current location">
+<select id="updateStatus">
+<option>Pending</option>
+<option>Picked Up</option>
+<option>In Transit</option>
+<option>Out for Delivery</option>
+<option>Delivered</option>
+</select>
+<input id="updateDate" type="date">
+<button onclick="updateShipment()">Save Shipment Update</button>
+<p id="updateMessage" class="message"></p>
+</section>
 
-<div class="card">
-<h3>Shipment Records</h3>
+<section class="panel">
+<h2>All Shipments</h2>
+<button onclick="loadShipments()">Refresh Shipments</button>
 <div class="table-wrap">
 <table>
 <thead>
@@ -106,36 +94,15 @@ small{color:#64748b}
 <th>Destination</th>
 <th>Location</th>
 <th>Status</th>
-<th>Delivery</th>
+<th>Delivery Date</th>
 </tr>
 </thead>
-<tbody id="shipments">
-<tr><td colspan="6">Sign in to load shipments.</td></tr>
+<tbody id="shipmentRows">
+<tr><td colspan="6">No shipments loaded yet.</td></tr>
 </tbody>
 </table>
 </div>
-</div>
-
-<div class="card">
-<h3>Update Shipment</h3>
-<label>Tracking number</label>
-<input id="updateTracking" placeholder="Enter tracking number">
-<label>New location</label>
-<input id="updateLocation" placeholder="Current shipment location">
-<label>New status</label>
-<select id="updateStatus">
-<option>Pending</option>
-<option>Processing</option>
-<option>In Transit</option>
-<option>Out for Delivery</option>
-<option>Delivered</option>
-</select>
-<label>Estimated delivery</label>
-<input id="updateDelivery" type="date">
-<button id="updateShipment">Save shipment update</button>
-<div id="updateMessage" class="message hidden"></div>
-</div>
-
+<p id="tableMessage" class="message"></p>
 </section>
 </main>
 
@@ -143,110 +110,57 @@ small{color:#64748b}
 const SUPABASE_URL="https://uuwtxgbjdagzlekbqmiz.supabase.co";
 const SUPABASE_KEY="sb_publishable_P-9Z1JhtFGpMInnNX6ztxQ_tnvZT70e";
 
-const db=supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+const db=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
 
-const $=id=>document.getElementById(id);
-
-function message(id,text){
-$(id).textContent=text;
-$(id).classList.remove("hidden");
+function message(id,text,type){
+const el=document.getElementById(id);
+el.textContent=text;
+el.className="message "+(type||"");
 }
 
-function showDashboard(){
-$("loginPanel").classList.add("hidden");
-$("dashboard").classList.remove("hidden");
-$("logout").classList.remove("hidden");
-loadShipments();
-}
-
-async function checkSession(){
-const {data,error}=await db.auth.getSession();
-if(error)return;
-if(data.session)showDashboard();
-}
-
-$("login").onclick=async()=>{
-const email=$("email").value.trim();
-const password=$("password").value;
-
-if(!email||!password){
-message("loginMessage","Enter your email and password.");
-return;
-}
-
-$("login").disabled=true;
-message("loginMessage","Signing in...");
+async function login(){
+const email=document.getElementById("email").value.trim();
+const password=document.getElementById("password").value;
 
 const {data,error}=await db.auth.signInWithPassword({email,password});
 
-$("login").disabled=false;
-
 if(error){
-message("loginMessage","Login failed: "+error.message);
+message("loginMessage",error.message,"error");
 return;
 }
+await showDashboard();
+await loadShipments();
+}
 
-showDashboard();
-};
+async function showDashboard(){
+document.getElementById("loginPanel").style.display="none";
+document.getElementById("dashboard").style.display="block";
+}
 
-$("logout").onclick=async()=>{
+async function logout(){
 await db.auth.signOut();
-$("dashboard").classList.add("hidden");
-$("loginPanel").classList.remove("hidden");
-$("logout").classList.add("hidden");
-$("password").value="";
-};
+document.getElementById("dashboard").style.display="none";
+document.getElementById("loginPanel").style.display="block";
+document.getElementById("password").value="";
+}
 
-async function loadShipments(){
-$("shipments").textContent="Loading...";
+function makeTrackingNumber(){
+return "RH-"+crypto.randomUUID().replaceAll("-","").slice(0,12).toUpperCase();
+}
 
-const {data,error}=await db
-.from("shipments")
-.select("tracking_number,customer_name,destination,current_location,status,estimated_delivery")
-.order("created_at",{ascending:false})
-.limit(100);
+async function createShipment(){
+const customer=document.getElementById("customer").value.trim();
+const destination=document.getElementById("destination").value.trim();
+const location=document.getElementById("location").value.trim();
+const status=document.getElementById("status").value;
+const date=document.getElementById("deliveryDate").value;
 
-if(error){
-$("shipments").textContent="Could not load records: "+error.message;
+if(!customer||!destination||!location||!date){
+message("createMessage","Please complete all fields.","error");
 return;
 }
 
-$("shipments").textContent="";
-
-if(!data.length){
-$("shipments").textContent="No shipments found.";
-return;
-}
-
-data.forEach(s=>{
-const tr=document.createElement("tr");
-[
-s.tracking_number,s.customer_name,s.destination,
-s.current_location,s.status,s.estimated_delivery
-].forEach(value=>{
-const td=document.createElement("td");
-td.textContent=value||"—";
-tr.appendChild(td);
-});
-$("shipments").appendChild(tr);
-});
-}
-
-$("refresh").onclick=loadShipments;
-
-$("addShipment").onclick=async()=>{
-const customer=$("customer").value.trim();
-const destination=$("destination").value.trim();
-const location=$("location").value.trim();
-const status=$("status").value;
-const delivery=$("delivery").value;
-
-if(!customer||!destination||!location||!delivery){
-message("addMessage","Please complete all shipment fields.");
-return;
-}
-
-const tracking="RH-"+crypto.randomUUID().replaceAll("-","").slice(0,12).toUpperCase();
+const tracking=makeTrackingNumber();
 
 const {error}=await db.from("shipments").insert([{
 tracking_number:tracking,
@@ -254,60 +168,108 @@ customer_name:customer,
 destination:destination,
 current_location:location,
 status:status,
-estimated_delivery:delivery
+estimated_delivery:date
 }]);
 
 if(error){
-message("addMessage","Could not create shipment: "+error.message);
+message("createMessage",error.message,"error");
 return;
 }
 
-message("addMessage","Shipment created successfully. Tracking number: "+tracking);
+message("createMessage","Shipment created. Tracking number: "+tracking,"success");
 
-$("customer").value="";
-$("destination").value="";
-$("location").value="";
-$("delivery").value="";
+document.getElementById("customer").value="";
+document.getElementById("destination").value="";
+document.getElementById("location").value="";
+document.getElementById("deliveryDate").value="";
 
-loadShipments();
-};
+await loadShipments();
+}
 
-$("updateShipment").onclick=async()=>{
-const tracking=$("updateTracking").value.trim();
-const location=$("updateLocation").value.trim();
-const status=$("updateStatus").value;
-const delivery=$("updateDelivery").value;
+async function updateShipment(){
+const tracking=document.getElementById("updateTracking").value.trim();
+const location=document.getElementById("updateLocation").value.trim();
+const status=document.getElementById("updateStatus").value;
+const date=document.getElementById("updateDate").value;
 
-if(!tracking||!location||!delivery){
-message("updateMessage","Enter tracking number, location and delivery date.");
+if(!tracking||!location||!date){
+message("updateMessage","Enter tracking number, location and date.","error");
 return;
 }
 
-const {data,error}=await db
-.from("shipments")
+const {data,error}=await db.from("shipments")
 .update({
 current_location:location,
 status:status,
-estimated_delivery:delivery
+estimated_delivery:date
 })
 .eq("tracking_number",tracking)
 .select("tracking_number");
 
 if(error){
-message("updateMessage","Update failed: "+error.message);
+message("updateMessage",error.message,"error");
 return;
 }
 
-if(!data.length){
-message("updateMessage","No shipment found with that tracking number.");
+if(!data||data.length===0){
+message("updateMessage","No matching shipment found or update not permitted.","error");
 return;
 }
 
-message("updateMessage","Shipment updated successfully.");
-loadShipments();
-};
+message("updateMessage","Shipment updated successfully.","success");
+await loadShipments();
+}
+
+async function loadShipments(){
+const rows=document.getElementById("shipmentRows");
+rows.innerHTML="";
+
+const {data,error}=await db.from("shipments")
+.select("tracking_number,customer_name,destination,current_location,status,estimated_delivery")
+.limit(100);
+
+if(error){
+message("tableMessage",error.message,"error");
+return;
+}
+
+message("tableMessage","","");
+
+if(!data||data.length===0){
+rows.innerHTML='<tr><td colspan="6">No shipments found.</td></tr>';
+return;
+}
+
+data.forEach(item=>{
+const tr=document.createElement("tr");
+
+[
+item.tracking_number,
+item.customer_name,
+item.destination,
+item.current_location,
+item.status,
+item.estimated_delivery
+].forEach(value=>{
+const td=document.createElement("td");
+td.textContent=value||"—";
+tr.appendChild(td);
+});
+
+rows.appendChild(tr);
+});
+}
+
+async function checkSession(){
+const {data,error}=await db.auth.getSession();
+if(!error&&data.session){
+await showDashboard();
+await loadShipments();
+}
+}
 
 checkSession();
 </script>
+
 </body>
 </html>
